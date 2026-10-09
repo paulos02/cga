@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galeria de Fotografias</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #181818;
+    color: white;
+    margin: 20px;
+}
+h2 { text-align: center; }
+#galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+.foto {
+    width: 100%;
+    cursor: pointer;
+    border-radius: 6px;
+}
+#visor {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.95);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 10;
+}
+#visor img {
+    max-width: 95vw;
+    max-height: 85vh;
+    object-fit: contain;
+}
+#fechar {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    cursor: pointer;
+    font-size: 35px;
+}
+</style>
+</head>
+<body>
+
+<h2>XXII Capítulo - Fotografias</h2>
+<div id="galeria"></div>
+
+<div id="visor">
+    <span id="fechar" onclick="fechar()">×</span>
+    <img id="ampliada">
+    <p id="numero"></p>
+</div>
+
+<script>
+const base = "https://www.cgalgarve.com/XXIIcapitulo/fotos/";
+const maxFotos = 500; // Alterar se necessário
+const fotos = [];
+let atual = 0;
+
+const galeria = document.getElementById("galeria");
+
+for (let i = 1; i <= maxFotos; i++) {
+    const nome = String(i).padStart(4, "0") + ".JPG";
+    const url = base + nome;
+
+    const img = document.createElement("img");
+    img.className = "foto";
+    img.loading = "lazy";
+    img.src = url;
+
+    img.onload = () => {
+        fotos.push(url);
+        img.onclick = () => abrir(url);
+    };
+
+    img.onerror = () => img.remove();
+    galeria.appendChild(img);
+}
+
+function abrir(url) {
+    atual = fotos.indexOf(url);
+    mostrar();
+    document.getElementById("visor").style.display = "flex";
+}
+
+function mostrar() {
+    document.getElementById("ampliada").src = fotos[atual];
+    document.getElementById("numero").textContent =
+        fotos[atual].split("/").pop();
+}
+
+function fechar() {
+    document.getElementById("visor").style.display = "none";
+}
+
+document.addEventListener("keydown", e => {
+    if (document.getElementById("visor").style.display !== "flex")
+        return;
+
+    if (e.key === "Escape") fechar();
+    if (e.key === "ArrowRight") {
+        atual = (atual + 1) % fotos.length;
+        mostrar();
+    }
+    if (e.key === "ArrowLeft") {
+        atual = (atual - 1 + fotos.length) % fotos.length;
+        mostrar();
+    }
+});
+</script>
+</body>
+</html>
